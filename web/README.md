@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PD-Bench platform — web
 
-## Getting Started
+Next.js 16 (App Router) + TypeScript + Tailwind v4 front end for PD-Bench:
+launch agents, visualize placements (empty floorplan → phase snapshots →
+final), inspect scoring/gates, and a leaderboard.
 
-First, run the development server:
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev            # http://localhost:3000  (predev syncs the fixture)
+npm test               # vitest: DEF parser, scoring parity, render math
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+With no backend the site runs on embedded seed data (the committed
+`leaderboard/results.jsonl` + the synthetic `fixtures/ariane133`). To talk to
+the live backend instead, set the API base:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_API_BASE=https://<your-modal-app>.modal.run npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build
 
-## Learn More
+```bash
+npm run build          # server build
+npm run export         # NEXT_EXPORT=1 → static site in web/out (served by server/app.py)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Path | Responsibility |
+|---|---|
+| `lib/def/` | DEF/LEF parser → `PlacementPayload` (typed-array cells) |
+| `lib/render/` | viewport math + canvas2D renderer (LOD density heatmap) + palette |
+| `lib/scoring.ts` | TS port of the verifier's `scoring.py` (parity-tested) |
+| `lib/api.ts` | data layer — embedded seed, or live backend via `NEXT_PUBLIC_API_BASE` |
+| `components/PlacementView.tsx` | pan/zoom chip view, overlays, parts-to-place panel |
+| `components/PhaseScrubber.tsx` | phase-snapshot timeline |
+| `components/ScoreBreakdown.tsx` | transparent per-metric s / weight / contribution |
+| `app/` | `/`, `/tasks/[id]`, `/leaderboard`, `/run?id=`, `/launch` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The placement renderer is canvas2D with a binned density-heatmap LOD (handles
+the ~100K-cell scale via viewport culling + heatmap when cells render
+sub-pixel). The canvas path is the default and is fully sufficient; a WebGL
+instanced backend is a possible future drop-in for raw cell counts.

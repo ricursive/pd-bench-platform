@@ -8,9 +8,20 @@ from __future__ import annotations
 
 import json
 import pathlib
+import re
 import threading
 import tomllib
 import uuid
+
+# IDs come from the URL and are used to build filesystem paths; constrain them
+# to an allowlist so they can never traverse out of their directory.
+_SAFE_ID = re.compile(r"^[A-Za-z0-9_.\-]{1,128}$")
+
+
+def _safe_id(value: str) -> str:
+    if not _SAFE_ID.fullmatch(value) or value in (".", ".."):
+        raise HTTPException(status_code=404, detail="not found")
+    return value
 
 import yaml
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -66,7 +77,11 @@ class RunManager:
 
 
 def read_task_detail(repo_root: pathlib.Path, task_id: str) -> dict:
-    base = repo_root / "tasks" / "ricursive" / task_id
+    _safe_id(task_id)
+    tasks_root = (repo_root / "tasks" / "ricursive").resolve()
+    base = (tasks_root / task_id).resolve()
+    if tasks_root not in base.parents:
+        raise HTTPException(status_code=404, detail="task not found")
     toml_data = tomllib.loads((base / "task.toml").read_text())
     cfg = yaml.safe_load((base / "tests" / "config.yaml").read_text())
     instruction = (base / "instruction.md").read_text()
@@ -169,6 +184,7 @@ def create_app(
 
     @app.get("/api/runs/{run_id}")
     def get_run(run_id: str) -> dict:
+        _safe_id(run_id)
         rec = store.load_meta(run_id)
         if not rec:
             raise HTTPException(status_code=404, detail="run not found")
@@ -191,8 +207,15 @@ def create_app(
 
     @app.get("/api/runs/{run_id}/artifacts/{path:path}")
     def get_artifact(run_id: str, path: str) -> FileResponse:
-        f = store.artifact_dir(run_id) / path
-        if not f.is_file() or ".." in path:
+        _safe_id(run_id)
+        if path.startswith("/") or ".." in path.split("/"):
+            raise HTTPException(status_code=404, detail="artifact not found")
+        base = store.artifact_dir(run_id).resolve()
+        try:
+            f = (base / path).resolve(strict=True)
+        except (FileNotFoundError, RuntimeError):
+            raise HTTPException(status_code=404, detail="artifact not found")
+        if not f.is_file() or (f != base and base not in f.parents):
             raise HTTPException(status_code=404, detail="artifact not found")
         return FileResponse(f)
 

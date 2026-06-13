@@ -78,3 +78,16 @@ def test_task_endpoint(tmp_path):
 def test_missing_run_404(tmp_path):
     client, _ = make_client(tmp_path)
     assert client.get("/api/runs/nope").status_code == 404
+
+
+def test_path_traversal_rejected(tmp_path):
+    client, _ = make_client(tmp_path)
+    # malicious task id / run id / artifact path must not escape their roots
+    assert client.get("/api/tasks/..%2f..%2f..%2fetc").status_code == 404
+    assert client.get("/api/tasks/%2e%2e").status_code == 404
+    assert client.get("/api/runs/..%2f..").status_code == 404
+    # a real run, then try to climb out of its artifact dir
+    rid = client.post("/api/runs", json=launch_body(), headers={"authorization": f"Bearer {ADMIN}"}).json()["runId"]
+    wait_done(client, rid)
+    assert client.get(f"/api/runs/{rid}/artifacts/..%2f..%2f..%2fmeta.json").status_code == 404
+    assert client.get(f"/api/runs/{rid}/artifacts/%2fetc%2fpasswd").status_code == 404
