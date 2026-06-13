@@ -1,0 +1,24 @@
+[project]
+name = "pd-bench-server"
+version = "0.1.0"
+description = "PD-Bench platform backend: launch orchestration + run/leaderboard API"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "pyyaml>=6.0",
+    "pydantic>=2.7",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+    "httpx>=0.27",
+]
+
+# Modal is only needed for live deployment (server/app.py), not for tests.
+[project.optional-dependencies]
+modal = ["modal>=0.64", "harbor==0.13.2"]
+
+[tool.pytest.ini_options]
+testpaths = ["."]
