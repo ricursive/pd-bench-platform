@@ -15,4 +15,11 @@ if (!existsSync(src)) {
 }
 mkdirSync(dst, { recursive: true });
 cpSync(src, dst, { recursive: true });
+
+// also expose the real task instruction.md so the task page renders it faithfully
+const instr = resolve(
+  here,
+  "../../tasks/ricursive/ariane133-asap7-mixed-placement/instruction.md",
+);
+if (existsSync(instr)) cpSync(instr, resolve(dst, "instruction.md"));
 console.log(`[sync-fixtures] ${src} -> ${dst}`);
