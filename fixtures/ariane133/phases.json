@@ -1,0 +1,26 @@
+[
+  {
+    "stage": "00_floorplan",
+    "label": "Floorplan (unplaced)",
+    "def": "ariane133_fp.def",
+    "elapsed_s": 0
+  },
+  {
+    "stage": "10_global_place",
+    "label": "Global placement",
+    "def": "phases/10_global_place.def",
+    "elapsed_s": 240
+  },
+  {
+    "stage": "20_legalize",
+    "label": "Legalization",
+    "def": "phases/20_legalize.def",
+    "elapsed_s": 410
+  },
+  {
+    "stage": "30_detailed",
+    "label": "Detailed placement",
+    "def": "phases/30_detailed.def",
+    "elapsed_s": 560
+  }
+]
