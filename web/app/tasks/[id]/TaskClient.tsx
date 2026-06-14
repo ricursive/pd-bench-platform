@@ -4,8 +4,9 @@ import Link from "next/link";
 import { getTask } from "@/lib/api";
 import { useAsync } from "@/lib/useAsync";
 import { ScoreBreakdown } from "@/components/ScoreBreakdown";
-import { PhaseScrubber } from "@/components/PhaseScrubber";
+import { SampleSolution } from "@/components/SampleSolution";
 import { Markdown } from "@/components/Markdown";
+import { SAMPLE_SOLUTION, PHASES } from "@/lib/seed";
 import { fmtInt } from "@/lib/format";
 
 export function TaskClient({ id }: { id: string }) {
@@ -41,10 +42,21 @@ export function TaskClient({ id }: { id: string }) {
         <Res k="clock" v={`${task.clockPeriodPs} ps`} />
       </div>
 
-      {/* floorplan viz */}
+      {/* sample-solution viz (prerendered; live render is opt-in) */}
       <section>
-        <div className="label mb-3">input floorplan · phase 0</div>
-        <PhaseScrubber phases={[]} finalDef={task.floorplanDef} lef={task.lef} haloUm={task.haloUm} />
+        <div className="flex items-baseline justify-between mb-3">
+          <div className="label">placement preview</div>
+          <div className="text-[11px] text-ink-faint">
+            the agent receives only the empty floorplan (phase 0)
+          </div>
+        </div>
+        <SampleSolution
+          gif={SAMPLE_SOLUTION.gif}
+          poster={SAMPLE_SOLUTION.poster}
+          phases={PHASES}
+          lef={task.lef ?? SAMPLE_SOLUTION.lef}
+          haloUm={task.haloUm}
+        />
       </section>
 
       {/* scoring + gates */}

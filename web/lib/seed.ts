@@ -47,7 +47,13 @@ export const TASK: TaskDetail = {
   lef: LEF,
 };
 
-const PHASES = [
+export const SAMPLE_SOLUTION = {
+  gif: "/prerender/ariane133/solution.gif",
+  poster: "/prerender/ariane133/solution.png",
+  lef: LEF,
+};
+
+export const PHASES = [
   { stage: "00_floorplan", label: "Floorplan (unplaced)", def: `${FIX}/ariane133_fp.def`, elapsed_s: 0 },
   { stage: "10_global_place", label: "Global placement", def: `${FIX}/phases/10_global_place.def`, elapsed_s: 240 },
   { stage: "20_legalize", label: "Legalization", def: `${FIX}/phases/20_legalize.def`, elapsed_s: 410 },

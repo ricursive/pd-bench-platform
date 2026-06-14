@@ -25,6 +25,8 @@ export function PlacementView({ payload, haloUm = 2, className }: Props) {
   const [hud, setHud] = useState({ mode: "cells" as "cells" | "density", zoom: 1 });
   const drag = useRef<{ x: number; y: number } | null>(null);
 
+  const rafRef = useRef<number | null>(null);
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const v = viewRef.current;
@@ -38,6 +40,15 @@ export function PlacementView({ payload, haloUm = 2, className }: Props) {
     const res = drawPlacement(ctx, payload, v, opts);
     setHud((h) => (h.mode === res.mode ? h : { ...h, mode: res.mode }));
   }, [payload, opts]);
+
+  // Coalesce pan/zoom redraws to one per animation frame.
+  const scheduleDraw = useCallback(() => {
+    if (rafRef.current != null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      draw();
+    });
+  }, [draw]);
 
   // size + initial fit
   useEffect(() => {
@@ -69,7 +80,7 @@ export function PlacementView({ payload, haloUm = 2, className }: Props) {
     const factor = Math.exp(-e.deltaY * 0.0014);
     viewRef.current = zoomAt(v, e.clientX - rect.left, e.clientY - rect.top, factor);
     setHud((h) => ({ ...h, zoom: viewRef.current!.scale / fitScale() }));
-    draw();
+    scheduleDraw();
   };
 
   const fitScale = () => {
@@ -86,7 +97,7 @@ export function PlacementView({ payload, haloUm = 2, className }: Props) {
     if (!drag.current || !viewRef.current) return;
     viewRef.current = pan(viewRef.current, e.clientX - drag.current.x, e.clientY - drag.current.y);
     drag.current = { x: e.clientX, y: e.clientY };
-    draw();
+    scheduleDraw();
   };
   const onUp = () => (drag.current = null);
 
