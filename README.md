@@ -20,7 +20,7 @@ vendor/     pd-bench submodule  → PDBENCH_REPO_ROOT (tasks, config, instructio
 ## Clone
 
 ```bash
-git clone --recurse-submodules https://github.com/bsflll/pd-bench-platform.git
+git clone --recurse-submodules https://github.com/ricursive/pd-bench-platform.git
 # or, after a plain clone:  git submodule update --init
 ```
 
