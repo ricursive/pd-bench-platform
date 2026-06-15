@@ -12,6 +12,7 @@ const FALLBACK: PreviewEntry[] = [
     name: "ariane133 · asap7",
     difficulty: "easy",
     blurb: "Mixed-size placement — 133 SRAM macros + ~100K std cells.",
+    status: "live",
     gif: "/prerender/ariane133/solution.gif",
     poster: "/prerender/ariane133/solution.png",
     refMetrics: [

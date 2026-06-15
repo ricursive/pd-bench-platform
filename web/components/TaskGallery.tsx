@@ -17,19 +17,25 @@ export function TaskGallery() {
   const list = previews ?? [];
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line">
-      {list.map((p) => (
-        <TaskCard key={`${p.org}/${p.task}`} p={p} />
-      ))}
-      {Array.from({ length: Math.max(0, 3 - list.length) }).map((_, i) => (
-        <div key={i} className="bg-panel p-4 min-h-[230px] grid place-items-center">
-          <span className="label text-ink-faint">more tasks soon</span>
-        </div>
-      ))}
+      {list.map((p) => (p.status === "live" ? <LiveCard key={p.task} p={p} /> : <PlannedCard key={p.task} p={p} />))}
     </div>
   );
 }
 
-function TaskCard({ p }: { p: PreviewEntry }) {
+function CardChrome({ p, children }: { p: PreviewEntry; children: React.ReactNode }) {
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-display font-bold truncate">{p.name}</span>
+        <span className={`label px-1.5 py-0.5 border shrink-0 ${DIFF[p.difficulty] ?? ""}`}>{p.difficulty}</span>
+      </div>
+      <p className="text-[13px] text-ink-dim mt-1.5 leading-relaxed min-h-[34px]">{p.blurb}</p>
+      {children}
+    </div>
+  );
+}
+
+function LiveCard({ p }: { p: PreviewEntry }) {
   const [hover, setHover] = useState(false);
   return (
     <Link
@@ -40,9 +46,7 @@ function TaskCard({ p }: { p: PreviewEntry }) {
     >
       <div className="relative aspect-[4/3] bg-[#080a0d] overflow-hidden">
         <img src={p.poster} alt={p.name} className="absolute inset-0 w-full h-full object-contain" loading="lazy" />
-        {hover && (
-          <img src={p.gif} alt="" className="absolute inset-0 w-full h-full object-contain" />
-        )}
+        {hover && <img src={p.gif} alt="" className="absolute inset-0 w-full h-full object-contain" />}
         <span
           className={`absolute top-2 left-2 tnum text-[10px] px-1.5 py-0.5 border bg-base/80 ${
             p.synthetic ? "text-warn border-warn/50" : "text-good border-good/50"
@@ -51,12 +55,7 @@ function TaskCard({ p }: { p: PreviewEntry }) {
           {p.synthetic ? "synthetic" : "baseline"}
         </span>
       </div>
-      <div className="p-4">
-        <div className="flex items-center justify-between">
-          <span className="font-display font-bold group-hover:text-amber transition-colors">{p.name}</span>
-          <span className={`label px-1.5 py-0.5 border ${DIFF[p.difficulty] ?? ""}`}>{p.difficulty}</span>
-        </div>
-        <p className="text-[13px] text-ink-dim mt-1.5 leading-relaxed">{p.blurb}</p>
+      <CardChrome p={p}>
         <div className="flex gap-4 mt-3">
           {p.refMetrics.map((m) => (
             <div key={m.label}>
@@ -64,8 +63,33 @@ function TaskCard({ p }: { p: PreviewEntry }) {
               <div className="tnum text-sm text-ink mt-0.5">{m.value}</div>
             </div>
           ))}
+          <span className="ml-auto self-end label group-hover:text-amber transition-colors">open →</span>
         </div>
-      </div>
+      </CardChrome>
     </Link>
+  );
+}
+
+function PlannedCard({ p }: { p: PreviewEntry }) {
+  return (
+    <div className="bg-panel/60 block opacity-80">
+      <div className="relative aspect-[4/3] bg-[#080a0d] grid place-items-center overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px)",
+            backgroundSize: "22px 22px",
+          }}
+        />
+        <span className="label text-ink-faint relative">planned</span>
+        <span className="absolute top-2 left-2 tnum text-[10px] px-1.5 py-0.5 border border-line-strong text-ink-faint bg-base/80">
+          roadmap
+        </span>
+      </div>
+      <CardChrome p={p}>
+        <div className="mt-3 label text-ink-faint">not yet available</div>
+      </CardChrome>
+    </div>
   );
 }

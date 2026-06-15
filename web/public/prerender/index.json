@@ -5,6 +5,7 @@
     "name": "ariane133 · asap7",
     "difficulty": "easy",
     "blurb": "Mixed-size placement — 133 SRAM macros + ~100K std cells.",
+    "status": "live",
     "gif": "/prerender/ariane133/solution.gif",
     "poster": "/prerender/ariane133/solution.png",
     "refMetrics": [
@@ -12,5 +13,65 @@
       { "label": "gates", "value": "4" }
     ],
     "synthetic": true
+  },
+  {
+    "task": "ariane133-asap7-global-routing",
+    "org": "ricursive",
+    "name": "ariane133 · routing",
+    "difficulty": "medium",
+    "blurb": "Global + detailed routing on a fixed placement; minimize DRC + wirelength.",
+    "status": "planned",
+    "gif": "",
+    "poster": "",
+    "refMetrics": [],
+    "synthetic": false
+  },
+  {
+    "task": "ariane133-asap7-cts",
+    "org": "ricursive",
+    "name": "ariane133 · cts",
+    "difficulty": "medium",
+    "blurb": "Clock-tree synthesis — minimize skew + clock power under depth limits.",
+    "status": "planned",
+    "gif": "",
+    "poster": "",
+    "refMetrics": [],
+    "synthetic": false
+  },
+  {
+    "task": "bp-quad-asap7-macro-placement",
+    "org": "ricursive",
+    "name": "blackparrot · asap7",
+    "difficulty": "hard",
+    "blurb": "Macro placement for a quad-core BlackParrot — far more macros, tighter floorplan.",
+    "status": "planned",
+    "gif": "",
+    "poster": "",
+    "refMetrics": [],
+    "synthetic": false
+  },
+  {
+    "task": "nvdla-asap7-placement",
+    "org": "ricursive",
+    "name": "nvdla · asap7",
+    "difficulty": "hard",
+    "blurb": "Mixed-size placement of the NVDLA accelerator — large macro count, congestion-driven.",
+    "status": "planned",
+    "gif": "",
+    "poster": "",
+    "refMetrics": [],
+    "synthetic": false
+  },
+  {
+    "task": "ariane133-sky130-mixed-placement",
+    "org": "ricursive",
+    "name": "ariane133 · sky130",
+    "difficulty": "medium",
+    "blurb": "Same core on the SkyWater 130nm open PDK — different cells, rows, and density.",
+    "status": "planned",
+    "gif": "",
+    "poster": "",
+    "refMetrics": [],
+    "synthetic": false
   }
 ]

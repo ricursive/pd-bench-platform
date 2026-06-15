@@ -9,13 +9,14 @@ from store import RunStore
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 FIX = REPO / "fixtures" / "ariane133"
+BENCH = REPO / "vendor" / "pd-bench"  # the pd-bench submodule
 ADMIN = "test-admin-token"
 
 
 def make_client(tmp_path):
     store = RunStore(tmp_path / "data")
     orch = LocalMockOrchestrator(FIX)
-    app = create_app(store, orch, admin_token=ADMIN, repo_root=REPO)
+    app = create_app(store, orch, admin_token=ADMIN, repo_root=BENCH)
     return TestClient(app), store
 
 

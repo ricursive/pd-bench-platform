@@ -93,13 +93,15 @@ export interface TaskDetail {
   lef: string;
 }
 
-/** One task's prerendered preview, from web/public/prerender/index.json. */
+/** One task in the benchmark registry, from web/public/prerender/index.json. */
 export interface PreviewEntry {
   task: string; // short id
   org: string;
   name: string;
   difficulty: "easy" | "medium" | "hard";
   blurb: string;
+  /** "live" tasks are runnable + have a preview; "planned" are roadmap cards. */
+  status: "live" | "planned";
   gif: string;
   poster: string;
   refMetrics: { label: string; value: string }[];

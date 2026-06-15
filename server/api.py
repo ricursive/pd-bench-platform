@@ -133,7 +133,7 @@ def create_app(
     app.add_middleware(
         CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
     )
-    mgr = RunManager(store, orch, repo_root / "server_jobs")
+    mgr = RunManager(store, orch, store.data_dir / "jobs")
 
     def require_admin(authorization: str = Header(default="")) -> None:
         token = authorization.removeprefix("Bearer ").strip()
