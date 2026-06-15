@@ -85,9 +85,26 @@ export interface TaskDetail {
   haloUm: number;
   clockPeriodPs: number;
   gates: { id: number; title: string; detail: string }[];
+  objective: string;
+  inputs: { path: string; contents: string }[];
+  reproduce: string; // a short OpenROAD/flow recipe (code)
   instruction: string; // markdown
   floorplanDef: string;
   lef: string;
+}
+
+/** One task's prerendered preview, from web/public/prerender/index.json. */
+export interface PreviewEntry {
+  task: string; // short id
+  org: string;
+  name: string;
+  difficulty: "easy" | "medium" | "hard";
+  blurb: string;
+  gif: string;
+  poster: string;
+  refMetrics: { label: string; value: string }[];
+  /** true until a real oracle-derived preview replaces the synthetic one */
+  synthetic: boolean;
 }
 
 export interface LaunchRequest {

@@ -42,6 +42,25 @@ export const TASK: TaskDetail = {
     { id: 3, title: "Legal placement", detail: "all PLACED/FIXED, legal orientation, on-row & site-aligned, no overlaps, 2 µm macro halos" },
     { id: 4, title: "check_placement passes", detail: "OpenROAD check_placement -verbose reports no violations" },
   ],
+  objective:
+    "Produce a legal, high-quality mixed-size placement (133 SRAM macros + ~100K standard cells) " +
+    "for the Ariane133 RISC-V core on the ASAP7 7nm predictive PDK. Any flow that produces a legal " +
+    "DEF counts — DREAMPlace and Xplace are provided but optional. The compute budget is the task timeout.",
+  inputs: [
+    { path: "floorplan/ariane133_fp.def", contents: "Fixed floorplan: die, rows, tracks, placed I/O pins, unplaced components. Your starting point." },
+    { path: "netlist/", contents: "Synthesized gate-level Verilog netlist." },
+    { path: "asap7/lef/", contents: "ASAP7 tech LEF, std-cell LEF, SRAM macro LEF." },
+    { path: "asap7/lib/", contents: "Liberty timing libraries (std cells + SRAM)." },
+    { path: "constraints/ariane133.sdc", contents: "Timing constraints (clock definition)." },
+    { path: "tools/DREAMPlace · tools/xplace", contents: "GPU-accelerated analytical placers (optional)." },
+  ],
+  reproduce:
+    "read_lef <tech,std,sram> ; read_liberty <*.lib>\n" +
+    "create_clock -name core_clock -period 900 [get_ports clk_i]\n" +
+    "# hpwl = Σ net getTermBBox (OpenDB, dbu)\n" +
+    "check_placement -verbose\n" +
+    "global_route -allow_congestion -verbose        # cong_h / cong_v\n" +
+    "estimate_parasitics -global_routing            # tns_viol / wns_viol",
   instruction: "", // fetched from /fixtures/ariane133/instruction.md
   floorplanDef: `${FIX}/ariane133_fp.def`,
   lef: LEF,

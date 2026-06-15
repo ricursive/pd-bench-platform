@@ -5,6 +5,7 @@ import { getLeaderboard } from "@/lib/api";
 import { TASK } from "@/lib/seed";
 import { useAsync } from "@/lib/useAsync";
 import { Leaderboard } from "@/components/Leaderboard";
+import { TaskGallery } from "@/components/TaskGallery";
 
 export default function Home() {
   const { data: runs } = useAsync(getLeaderboard, []);
@@ -57,44 +58,25 @@ export default function Home() {
         ))}
       </section>
 
-      {/* task + leaderboard */}
-      <section className="grid lg:grid-cols-[340px_1fr] gap-6">
-        <Link href={`/tasks/${TASK.id}`} className="panel ticks p-5 block hover:border-line-strong transition-colors group">
-          <div className="flex items-center justify-between">
-            <span className="label">task</span>
-            <span className="label !text-amber border border-amber/30 px-1.5 py-0.5">{TASK.difficulty}</span>
-          </div>
-          <h3 className="font-display font-bold text-lg mt-3 group-hover:text-amber transition-colors">
-            ariane133 · asap7
-          </h3>
-          <p className="text-ink-dim text-sm mt-1.5 leading-relaxed">{TASK.description}</p>
-          <dl className="grid grid-cols-2 gap-2 mt-4 text-xs">
-            <Stat k="GPU" v={TASK.resources.gpu} />
-            <Stat k="budget" v={`${TASK.resources.agentTimeoutSec / 3600}h`} />
-            <Stat k="metrics" v={`${TASK.metrics.length}`} />
-            <Stat k="gates" v={`${TASK.gates.length}`} />
-          </dl>
-        </Link>
-
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="label">leaderboard · {TASK.id}</h2>
-            <Link href="/leaderboard" className="label hover:!text-amber transition-colors">
-              full board →
-            </Link>
-          </div>
-          {runs ? <Leaderboard runs={runs} /> : <Skeleton />}
+      {/* tasks */}
+      <section>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="label">tasks</h2>
+          <span className="text-[11px] text-ink-faint">each card previews the baseline placement</span>
         </div>
+        <TaskGallery />
       </section>
-    </div>
-  );
-}
 
-function Stat({ k, v }: { k: string; v: string }) {
-  return (
-    <div>
-      <dt className="label">{k}</dt>
-      <dd className="tnum text-ink mt-0.5">{v}</dd>
+      {/* leaderboard */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="label">leaderboard · {TASK.id}</h2>
+          <Link href="/leaderboard" className="label hover:!text-amber transition-colors">
+            full board →
+          </Link>
+        </div>
+        {runs ? <Leaderboard runs={runs} /> : <Skeleton />}
+      </section>
     </div>
   );
 }

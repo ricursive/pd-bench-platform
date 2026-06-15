@@ -1,0 +1,16 @@
+[
+  {
+    "task": "ariane133-asap7-mixed-placement",
+    "org": "ricursive",
+    "name": "ariane133 · asap7",
+    "difficulty": "easy",
+    "blurb": "Mixed-size placement — 133 SRAM macros + ~100K std cells.",
+    "gif": "/prerender/ariane133/solution.gif",
+    "poster": "/prerender/ariane133/solution.png",
+    "refMetrics": [
+      { "label": "HPWL", "value": "781,044,057" },
+      { "label": "gates", "value": "4" }
+    ],
+    "synthetic": true
+  }
+]

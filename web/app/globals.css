@@ -138,3 +138,32 @@ a {
 .rise {
   animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+
+/* datasheet section number — large display, used as 01 · OBJECTIVE */
+.section-num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--color-amber);
+  font-variant-numeric: tabular-nums;
+}
+
+/* hairline divider used between sections instead of nested panels */
+.rule {
+  height: 1px;
+  background: var(--color-line);
+  border: 0;
+}
+
+/* the masthead data ribbon: dot-separated mono facts */
+.ribbon {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  color: var(--color-ink-dim);
+}
+.ribbon b {
+  color: var(--color-ink);
+  font-weight: 500;
+}
