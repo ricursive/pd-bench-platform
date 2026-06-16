@@ -99,6 +99,17 @@ def place_macros(g: Geom) -> list[tuple[int, int]]:
     return coords
 
 
+# Logical blocks (mirror an RTL module hierarchy) laid over a 3×3 die grid, so
+# each block occupies a spatial region — the hierarchy in pd mirrors the design.
+BLOCKS = ["i_cache", "d_cache", "fpu", "lsu", "decode", "issue", "csr", "mmu", "mem"]
+
+
+def block_of(g: "Geom", x: int, y: int) -> str:
+    bx = min(2, max(0, x * 3 // g.die))
+    by = min(2, max(0, y * 3 // g.die))
+    return BLOCKS[by * 3 + bx]
+
+
 def gen_cells(g: Geom, n: int, macros: list[tuple[int, int]], rng: random.Random):
     """Create n std cells: pick a master, a target row, and an x within die.
 
@@ -148,7 +159,7 @@ def gen_cells(g: Geom, n: int, macros: list[tuple[int, int]], rng: random.Random
         dx = max(0, lx - g.site_w * rng.randint(0, 3))
         cells.append(
             {
-                "name": f"cell_{len(cells)}",
+                "name": f"{block_of(g, lx, ly)}/c{len(cells)}",
                 "master": name,
                 "w": w,
                 "g": (gx, gy),
@@ -207,7 +218,20 @@ def _pins(g: Geom, n: int = 64) -> list[str]:
     return lines
 
 
-def write_def(path: pathlib.Path, g: Geom, comps: list[str]) -> None:
+def gen_nets(cells, rng: random.Random) -> list[tuple[str, list[str]]]:
+    """Synthetic connectivity: each net wires 2–4 cells. Identical across phases
+    (connectivity is invariant; only placement moves), so HPWL changes as cells
+    move and the component-set gate stays satisfied."""
+    names = [c["name"] for c in cells]
+    nets = []
+    for i in range(int(len(names) * 0.8)):
+        k = rng.choice([2, 2, 3, 4])
+        terms = rng.sample(names, min(k, len(names)))
+        nets.append((f"n{i}", terms))
+    return nets
+
+
+def write_def(path: pathlib.Path, g: Geom, comps: list[str], nets: list[tuple[str, list[str]]]) -> None:
     lines = _header(g)
     lines.append("")
     lines.append(f"COMPONENTS {len(comps)} ;")
@@ -215,6 +239,12 @@ def write_def(path: pathlib.Path, g: Geom, comps: list[str]) -> None:
     lines.append("END COMPONENTS")
     lines.append("")
     lines.extend(_pins(g))
+    lines.append("")
+    lines.append(f"NETS {len(nets)} ;")
+    for name, terms in nets:
+        conns = " ".join(f"( {t} A )" for t in terms)
+        lines.append(f"- {name} {conns} + USE SIGNAL ;")
+    lines.append("END NETS")
     lines.append("")
     lines.append("END DESIGN")
     path.write_text("\n".join(lines) + "\n")
@@ -226,18 +256,20 @@ def comp_line(name: str, master: str, status: str, x: int, y: int, orient: str) 
     return f"- {name} {master} + {status} ( {x} {y} ) {orient} ;"
 
 
-def macro_name(i: int) -> str:
-    return f"macro_{i}"
+def macro_name(g: "Geom", i: int, mx: int, my: int) -> str:
+    blk = block_of(g, mx + g.macro_w // 2, my + g.macro_h // 2)
+    return f"{blk}/sram{i}"
 
 
 def build_phase(g: Geom, macros, cells, phase: str) -> list[str]:
     """Build the COMPONENTS body for a phase: 'fp'|'global'|'legal'|'detailed'."""
     out: list[str] = []
     for i, (mx, my) in enumerate(macros):
+        nm = macro_name(g, i, mx, my)
         if phase == "fp":
-            out.append(comp_line(macro_name(i), MACRO, "UNPLACED", 0, 0, "N"))
+            out.append(comp_line(nm, MACRO, "UNPLACED", 0, 0, "N"))
         else:
-            out.append(comp_line(macro_name(i), MACRO, "PLACED", mx, my, "N"))
+            out.append(comp_line(nm, MACRO, "PLACED", mx, my, "N"))
     for cd in cells:
         if phase == "fp":
             out.append(comp_line(cd["name"], cd["master"], "UNPLACED", 0, 0, "N"))
@@ -288,16 +320,17 @@ def main() -> int:
     g = Geom()
     macros = place_macros(g)
     cells = gen_cells(g, args.cells, macros, rng)
+    nets = gen_nets(cells, rng)
 
     out = args.out
     (out / "phases").mkdir(parents=True, exist_ok=True)
 
     write_lef(out / "cells.lef", g)
-    write_def(out / "ariane133_fp.def", g, build_phase(g, macros, cells, "fp"))
-    write_def(out / "phases" / "10_global_place.def", g, build_phase(g, macros, cells, "global"))
-    write_def(out / "phases" / "20_legalize.def", g, build_phase(g, macros, cells, "legal"))
-    write_def(out / "phases" / "30_detailed.def", g, build_phase(g, macros, cells, "detailed"))
-    write_def(out / "ariane133_placed.def", g, build_phase(g, macros, cells, "detailed"))
+    write_def(out / "ariane133_fp.def", g, build_phase(g, macros, cells, "fp"), nets)
+    write_def(out / "phases" / "10_global_place.def", g, build_phase(g, macros, cells, "global"), nets)
+    write_def(out / "phases" / "20_legalize.def", g, build_phase(g, macros, cells, "legal"), nets)
+    write_def(out / "phases" / "30_detailed.def", g, build_phase(g, macros, cells, "detailed"), nets)
+    write_def(out / "ariane133_placed.def", g, build_phase(g, macros, cells, "detailed"), nets)
 
     manifest = [
         {"stage": "00_floorplan", "label": "Floorplan (unplaced)", "def": "ariane133_fp.def", "elapsed_s": 0},

@@ -1,0 +1,15 @@
+[project]
+name = "pd"
+version = "0.1.0"
+description = "GitHub for physical design — read-only LLM-legible views + layout VCS"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+pd = "pd.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.4"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
