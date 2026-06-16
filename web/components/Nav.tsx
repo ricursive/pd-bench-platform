@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/", label: "Overview" },
   { href: "/tasks/ariane133-asap7-mixed-placement", label: "Task" },
   { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/experiments", label: "A/B" },
   { href: "/launch", label: "Launch" },
 ];
 

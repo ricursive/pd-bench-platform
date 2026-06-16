@@ -1,0 +1,50 @@
+{
+  "preview": true,
+  "title": "Does physical feedback (pd) lift scores?",
+  "agent": "codex",
+  "model": "gpt-5.3-codex",
+  "task": "ariane133-asap7-mixed-placement",
+  "hypothesis": "Agents score low because the run is an open loop — they can't read the chip or diff attempts — not because they can't reason. If so, the legible pd representation should lift scores.",
+  "note": "PREVIEW — illustrative numbers until the gated live run. Control is anchored to the real codex result on the leaderboard (score 3.37, valid 1); treatment values are synthetic.",
+  "arms": {
+    "control": {
+      "label": "control · raw DEF (open loop)",
+      "blurb": "Today's environment: the agent gets the floorplan DEF and grades once, blind.",
+      "n": 10,
+      "mean": 2.54,
+      "std": 1.78,
+      "valid_rate": 1.0,
+      "pass_at_1": 1.0,
+      "scores": [1.06, 1.01, 0.16, 5.95, 3.4, 3.76, 3.03, 4.36, 0.61, 2.04],
+      "trace": {
+        "kind": "final",
+        "placementDef": "/fixtures/ariane133/ariane133_placed.def",
+        "lef": "/fixtures/ariane133/cells.lef",
+        "note": "final DEF only — no pd history to inspect"
+      }
+    },
+    "treatment": {
+      "label": "treatment · pd (closed loop)",
+      "blurb": "Same task + the legible, versioned .pd repo (pd view / status / diff) + the instruction overlay.",
+      "n": 10,
+      "mean": 5.56,
+      "std": 2.98,
+      "valid_rate": 0.8,
+      "pass_at_1": 0.8,
+      "scores": [7.8, 7.93, 0.0, 6.57, 7.83, 4.13, 0.0, 6.78, 6.66, 7.92],
+      "trace": {
+        "kind": "phases",
+        "lef": "/fixtures/ariane133/cells.lef",
+        "phases": [
+          { "stage": "00_floorplan", "label": "Floorplan (commit 0)", "def": "/fixtures/ariane133/ariane133_fp.def", "elapsed_s": 0 },
+          { "stage": "10_global_place", "label": "Global placement", "def": "/fixtures/ariane133/phases/10_global_place.def", "elapsed_s": 240 },
+          { "stage": "20_legalize", "label": "Legalize", "def": "/fixtures/ariane133/phases/20_legalize.def", "elapsed_s": 410 },
+          { "stage": "30_detailed", "label": "Detailed placement", "def": "/fixtures/ariane133/phases/30_detailed.def", "elapsed_s": 560 }
+        ],
+        "note": "pd commit history the agent could read + diff while iterating"
+      }
+    }
+  },
+  "comparison": { "delta_mean": 3.02, "delta_valid_rate": 0.0, "mannwhitney_p_approx": 0.034 },
+  "anchor": { "real_control_score": 3.37, "real_control_valid": 1, "source": "leaderboard codex-bench" }
+}
