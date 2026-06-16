@@ -1,3 +1,0 @@
-[submodule "vendor/pd-bench"]
-	path = vendor/pd-bench
-	url = https://github.com/ricursive/pd-bench.git
