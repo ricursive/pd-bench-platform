@@ -36,6 +36,8 @@ def test_ingest_builds_valid_run(tmp_path):
     assert detail["placementDef"] == "ariane133_placed.def"
     assert detail["lef"] == "cells.lef"
     assert len(detail["phases"]) >= 4
+    for phase in detail["phases"]:
+        assert (store.artifact_dir("run_x") / phase["def"]).is_file()
     assert (store.artifact_dir("run_x") / "phases" / "10_global_place.def").is_file()
     assert store.index_rows()[-1]["m_hpwl"] == 728344038.0
 
