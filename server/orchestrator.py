@@ -71,7 +71,7 @@ class LocalMockOrchestrator(Orchestrator):
         else:
             shutil.copy(self.fixtures / "ariane133_placed.def", artifacts / "ariane133_placed.def")
             shutil.copy(self.fixtures / "cells.lef", artifacts / "cells.lef")
-            shutil.copy(self.fixtures / "ariane133_fp.def", artifacts / "phases" / "00_floorplan.def")
+            shutil.copy(self.fixtures / "ariane133_fp.def", artifacts / "phases" / "ariane133_fp.def")
             for f in sorted((self.fixtures / "phases").glob("*.def")):
                 shutil.copy(f, artifacts / "phases" / f.name)
             shutil.copy(self.fixtures / "phases.json", artifacts / "phases" / "phases.json")
